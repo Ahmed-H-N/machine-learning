@@ -24,12 +24,24 @@ class Task():
         self.action_size = 4
 
         # Goal
-        self.target_pos = target_pos if target_pos is not None else np.array([0., 0., 10.]) 
+        self.target_pos = target_pos if target_pos is not None else np.array([10., 10., 20.]) 
 
     def get_reward(self):
         """Uses current pose of sim to return reward."""
-        reward = 1.-.3*(abs(self.sim.pose[:3] - self.target_pos)).sum()
-        return reward
+        curr_pos = self.sim.pose[3:6]
+        euler_angles = self.sim.pose[3:6]
+        distance_from_target = np.sqrt(((curr_pos - self.target_pos)**2).sum())
+        
+        # Add penalty term for large euler angles and distance from target
+        penalty = 10 * abs(euler_angles).sum() + 0.3 * distance_from_target
+
+        # Reward per step (long flights get rewarded)
+        reward = 500
+        
+        if distance_from_target < 3:
+            reward += 10000
+            
+        return reward - penalty
 
     def step(self, rotor_speeds):
         """Uses action to obtain next state, reward, done."""
