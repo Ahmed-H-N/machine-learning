@@ -33,15 +33,17 @@ class Task():
         distance_from_target = np.sqrt(((curr_pos - self.target_pos)**2).sum())
         
         # Add penalty term for large euler angles and distance from target
-        penalty = 10 * abs(euler_angles).sum() + 2.5 * distance_from_target
+        #penalty = 10 * abs(euler_angles).sum() + 2.5 * distance_from_target
 
         # Reward per step (long flights get rewarded)
-        reward = 500
+        #reward = 500
         
-        if distance_from_target < 10:
-            reward += 10000
+        #if distance_from_target < 10:
+        #    reward += 10000
             
-        return reward - penalty
+        #return reward - penalty
+        reward = np.tanh(1.-.0003*(abs(self.sim.pose[:3] - self.target_pos)).sum())
+        return reward
 
     def step(self, rotor_speeds):
         """Uses action to obtain next state, reward, done."""
